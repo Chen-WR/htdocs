@@ -3,6 +3,7 @@ class User{
     private $id;
     private $email;
     private $username;
+    private $profile_pic;
     private $link;
     private $error = array();
 
@@ -117,6 +118,7 @@ class User{
                     $this->id = $rows[0]['id'];
                     $this->email = $rows[0]['email'];
                     $this->username = $rows[0]['username'];
+                    $this->profile_pic = $rows[0]['profile_pic'];
                     return 0;
                 }
                 else{
@@ -133,9 +135,11 @@ class User{
             return 1;
         }
     }
-
     public function getError(){
         return $this->error;
+    }
+    public function getCurrent(){
+        return array('id'=>$this->id, 'email'=>$this->email, 'username'=>$this->username, 'profile_pic'=>$this->profile_pic);
     }
 }
 ?>

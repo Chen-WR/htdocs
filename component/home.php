@@ -1,83 +1,41 @@
 <?php
-// Initialize the session
-session_start();
- 
-// Check if the user is logged in, if not then redirect him to login page
-if(!isset($_SESSION["login"]) || $_SESSION["login"] !== true){
-    header("location: ../account/login.php");
-    exit;
-}	
-
-?>
-<?php
-
-
-if($_SESSION["pic"] == NULL || $_SESSION["pic"] == "pics/")
-{
-$image = "pics/17004.png";
-}
-else
-{
-$image = $_SESSION["pic"];
-}   
-
-
+	require_once "../config/config.php";
+	include('navbar.php');
+	session_start();
+	if(!isset($_SESSION["login"]) or $_SESSION["login"] !== true){
+		header("location: ../account/login.php");
+		exit;
+	}	
+	if(!isset($_SESSION["profile_pic"]) or $_SESSION["pic"] == NULL){
+		$image = "../image/default_profile_pic.jpg";
+	}
+	else{
+		$image = $_SESSION["profile_pic"];
+	}   
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Welcome</title>
-<style type="text/css">
-        body{ font: 14px sans-serif; text-align: center; }
-    </style>
-	<script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="style.css?<?php echo date('l jS \of F Y h:i:s A'); ?>" />
-
-
-</head>
-<body>
-	<div class="container">
-
-			
-		<h1 id="title"><em>Alias</em><br>
-	    <span id="group17">By Group 17</span></h1>
-		
-
-
-	<div class="navbar">
-		
-		<a href="welcome.php">Home</a>
-     	<a href="reset-password.php" class="btn btn-warning">Reset Password</a>
-     	<a href="../account/logout.php" class="btn btn-danger">Logout</a>
-		
-		</div>
-
-
-
-		<div id="profile">
-		<br />	
-		<img id="proImg"src="<?php echo $image ?>" width="200px">
-        <h1 id="proUsername"><b><?php echo htmlspecialchars($_SESSION["username"]); ?>'s</b> homepage</h1>
-			
-		</div>
-
-		 
-	<div class="toggle">
-		<div class="fixer-container">
-		<a href="javascript:com()">Post Comment</a>
-     	<a href="javascript:pro()">Change Profile Picture</a>
-		<a href="chat.php">Chat</a>
-		<a href="list_pm.php">Messaging</a>
-		<a href="video.php">My Channel</a>
-<form action="" method="post" id="formie">
-<input type="text" name="search">
-<input type="submit" name="submit" value="Search Users">
-</form>
-
-
-
+	<head>
+		<meta charset="UTF-8">
+		<title>Home</title>	
+	</head>
+	<body style="font: 14px sans-serif; text-align: center;">	
+		<div id="profile_pic">
+			<h1 id="profile_username"><b><?php echo htmlspecialchars($_SESSION["username"]); ?></b></h1>
+			<img id="profile_img "src="<?php echo $image?>" width="200px">
+		</div>	 
+		<div class="toggle">
+			<div class="fixer-container">
+			<a href="javascript:com()">Post Comment</a>
+			<a href="javascript:pro()">Change Profile Picture</a>
+			<a href="chat.php">Chat</a>
+			<a href="list_pm.php">Messaging</a>
+			<a >My Channel</a>
+			<form action="" method="post" id="formie">
+				<input type="text" name="search">
+				<input type="submit" name="submit" value="Search Users">
+			</form>
 		</div>
 		
 <div id="com"></div>
