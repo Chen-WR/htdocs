@@ -1,11 +1,5 @@
 <?php
-	require_once "../config/config.php";
-	include('navbar.php');
-	session_start();
-	if(!isset($_SESSION["login"]) or $_SESSION["login"] !== true){
-		header("location: ../account/login.php");
-		exit;
-	}	
+	include('header.php');
 	if(!isset($_SESSION["profile_pic"]) or $_SESSION["pic"] == NULL){
 		$image = "../image/default_profile_pic.jpg";
 	}

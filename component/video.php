@@ -1,7 +1,5 @@
 <?php
-    require_once "../config/connection.php";
-    include('navbar.php');
-    session_start();
+    include('header.php');
 ?>
 <!DOCTYPE html>
 <html>
@@ -12,6 +10,20 @@
                 <input type='file' name='video_file'>
                 <input type='submit' value='Upload' name='video_upload'>
             </form>
+        </div>
+        <div>
+            <?php
+                $rows = get_video($conn);
+                foreach($rows as $row){
+                    echo '<div style="text-align:center;">';
+                    echo 'Title:'.'<p><b><STRONG>'.$row["name"].'</STRONG></b></p>';
+                    echo 'Upload Time: '.$row["timestamp"];
+                    echo '</div>';
+                    echo '<div  style="text-align:center">';
+                    echo '<video src="'.$row["location"].'" controls width="480px" height="360px">';
+                    echo '</div>';
+                }
+            ?>
         </div>
     </body>
 </html>
@@ -25,9 +37,6 @@
         if(isset($_POST['video_upload'])){
             upload_video($conn);
         }
-   }
-   else{
-       get_video($conn);
    }
 
     function upload_video($conn){
@@ -77,22 +86,13 @@
         }
     }
     function get_video($conn){
-        
-        // $fetchVideos = mysqli_query($conn, "SELECT * FROM videos where user_id = '".$_SESSION['id']."' ORDER BY id DESC");
-
-        // while($row = mysqli_fetch_assoc($fetchVideos)){
-        //   $location = $row['location'];
-        //   $name = $row['name'];
-        //   $time = date("F j, Y, g:i a", $row['time_stamp']);
-        
-        //   echo "<br>";  
-        //   echo "<div style=text-align:center>";
-        //   echo $name; 
-        //   echo "<br>";
-        //   echo $time;
-        //   echo "<br>";
-        //   echo "<video src='".$location."' controls width='800px' height='600px' >";
-        //   echo "</div>";
+        $query = "SELECT * FROM video WHERE user_id=? ORDER BY timestamp DESC";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param('i', $_SESSION['id']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $rows = $result->fetch_all(MYSQLI_ASSOC);
+        return $rows;
     }
 ?>
 

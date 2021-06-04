@@ -10,7 +10,7 @@
 			<a class="active item" href="home.php">
 				Home
 			</a>
-			<a class="item">
+			<a class="item" href="direct_message.php">
 				Messages
 			</a>
 			<a class="item">

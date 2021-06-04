@@ -17,13 +17,12 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     }
 }
 ?>
- 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Sign Up</title>
-
 </head>
 <body>
     <div style='text-align:center;' class="container">
@@ -47,9 +46,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             </div>
             <div style="color:red;">
                 <?php
-                if (isset($errorArray['email_error'])){
-                    echo $errorArray['email_error'];
-                }
+                    if (isset($errorArray['email_error'])){
+                        echo $errorArray['email_error'];
+                    }
                 ?>
             </div>
             <div>
@@ -60,9 +59,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             </div>
             <div style="color:red;">
                 <?php
-                if (isset($errorArray['username_error'])){
-                    echo $errorArray['username_error'];
-                }
+                    if (isset($errorArray['username_error'])){
+                        echo $errorArray['username_error'];
+                    }
                 ?>
             </div>
             <div>
@@ -73,9 +72,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             </div>
             <div style="color:red;">
                 <?php
-                if (isset($errorArray['password1_error'])){
-                    echo $errorArray['password1_error'];
-                }
+                    if (isset($errorArray['password1_error'])){
+                        echo $errorArray['password1_error'];
+                    }
                 ?>
             </div>
             <div>
@@ -86,9 +85,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             </div>
             <div style="color:red;">
                 <?php
-                if (isset($errorArray['password2_error'])){
-                    echo $errorArray['password2_error'];
-                }
+                    if (isset($errorArray['password2_error'])){
+                        echo $errorArray['password2_error'];
+                    }
                 ?>
             </div>
             <div>
@@ -101,3 +100,5 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     </div>   
 </body>
 </html>
+ 
+
