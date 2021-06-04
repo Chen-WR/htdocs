@@ -1,75 +1,139 @@
 <?php
-
 class User{
+    private $id;
     private $email;
     private $username;
-    private $password;
-    private $confirm_password;
+    private $link;
     private $error = array();
 
     // Constructor have 2 underscore and not 1!!!!!
-    public function __construct($email, $username, $password, $confirm_password){
-        // $this->email = $this->email_validation($email, $link);
-        // $this->username = $this->username_validation($username, $link);
-        // $this->password = $this->password_validation($password, $confirm_password, $link);
-        $this->email = $email;
-        $this->username = $username;
-        $this->password = $password;
-        $this->confirm_password = $confirm_password;
+    public function __construct($conn){
+        $this->link = $conn;
     }
 
-    protected function email_validation($email, $conn){
+    protected function email_validation($email){
         if (empty(trim($email))){
-            array_push($this->error, "Email Required");
+            $this->error['email_error'] = "Email Required";
         }
-        else{
-            $query = "SELECT * from user where email='$email'";
-            $result = mysqli_query($conn, $query);
-            if (mysqli_num_rows($result) > 0){
-                array_push($this->error, "Email Existed");
+        elseif (!empty(trim($email))){
+            $email_param = trim($email);
+            $query = "SELECT * from user where email=?";
+            $stmt = $this->link->prepare($query);
+            $stmt->bind_param('s', $email_param);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            if ($result->num_rows > 0){
+                $this->error['email_error'] = "Email Existed";
             }
             else{
-                    return trim($email);
+                return trim($email);
             }
         }
     }
-    protected function username_validation($username, $conn){
+    protected function username_validation($username){
         if (empty(trim($username))){
-            array_push($this->error, "Username Required");
+            $this->error['username_error'] = "Username Required";
         }
-        else{
-            $query = "SELECT * from user where username='$username'";
-            $result = mysqli_query($conn, $query);
-            if (mysqli_num_rows($result) > 0){
-                array_push($this->error, "Username Existed");
+        elseif (!empty(trim($username))){
+            $username_param = trim($username);
+            $query = "SELECT * from user where username=?";
+            $stmt = $this->link->prepare($query);
+            $stmt->bind_param('s', $username_param);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            if ($result->num_rows > 0){
+                $this->error['username_error'] = "Username Existed";
             }
             else{
-                    return trim($username);
+                return trim($username);
             }
         }
     }
-    protected function password_validation($password1, $password2, $conn){
+    protected function password_validation($password1, $password2){
         if (empty(trim($password1))){
-            array_push($this->error, "Password Required");
+            $this->error['password1_error'] = "Password Required";
         }
         elseif (empty(trim($password2))){
-            array_push($this->error, "Confirm Password Required");
+            $this->error['password2_error'] = "Confirm Password Required";
         }
         elseif (trim($password1) != trim($password2)){
-            array_push($this->error, "Password Not Match");
+            $this->error['password2_error'] = "Password Not Match";
         }
         else{
-                return password_hash(trim($password1), PASSWORD_DEFAULT);
+            return password_hash(trim($password1), PASSWORD_DEFAULT);
         }
     }
-    public function getData($link){
-        if (isset($this->confirm_password)){
-            $this->email = $this->email_validation($this->email, $link);
-            $this->username = $this->username_validation($this->username, $link);
-            $this->password = $this->password_validation($this->password, $this->confirm_password, $link);
-            return array('email'=>$this->email, 'username'=>$this->username, 'password'=>$this->password);
+    public function registration($email_input, $username_input, $password_input, $confirm_password_input){
+        $email = $this->email_validation($email_input);
+        $username = $this->username_validation($username_input);
+        $password = $this->password_validation($password_input, $confirm_password_input);
+        $query = "INSERT INTO user (email, username, password) VALUES (?,?,?)";
+        $stmt = $this->link->prepare($query);
+        $stmt->bind_param('sss', $email, $username, $password);
+        if (count($this->error)<=0){
+            $stmt->execute();
+            return 0;
+        }
+        else {
+            return 1;
         }
     }
+    protected function login_user_validation($email_or_username){
+        if (empty(trim($email_or_username))){
+            $this->error['email_or_username_error'] = "Email or Username Required";
+        }
+        elseif (!empty(trim($email_or_username))){
+            return trim($email_or_username);
+        }
+    }
+    protected function login_password_validation($password){
+        if (empty(trim($password))){
+            $this->error['password_error'] = "Password Required";
+        }
+        elseif (!empty(trim($password))){
+            return trim($password);
+        }
+    }
+    public function login($email_or_username_input, $password_input){
+        $email_or_username = $this->login_user_validation($email_or_username_input);
+        $password = $this->login_password_validation($password_input);
+        if (count($this->error)<=0){
+            if (str_contains($email_or_username_input, '@')){
+                $query = "SELECT * FROM user WHERE email=?";
+                $stmt = $this->link->prepare($query);
+                $stmt->bind_param('s', $email_or_username);
+            }
+            elseif (!str_contains($email_or_username_input, '@')){
+                $query = "SELECT * FROM user WHERE username=?";
+                $stmt = $this->link->prepare($query);
+                $stmt->bind_param('s', $email_or_username);
+            }
+            $stmt->execute();
+            $result = $stmt->get_result();
+            if ($result->num_rows==1){
+                $rows = $result->fetch_all(MYSQLI_ASSOC);
+                $password_check = $rows[0]['password'];
+                if (password_verify($password, $password_check)){
+                    $this->id = $rows[0]['id'];
+                    $this->email = $rows[0]['email'];
+                    $this->username = $rows[0]['username'];
+                    return 0;
+                }
+                else{
+                    $this->error['login_error'] = "Username/Email or Password Incorrect";
+                    return 1;
+                }
+            }
+            else{
+                $this->error['login_error'] = "Username/Email or Password Incorrect";
+                return 1;
+            }
+        }
+        else{
+            return 1;
+        }
+    }
+
     public function getError(){
         return $this->error;
     }

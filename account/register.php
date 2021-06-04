@@ -1,25 +1,19 @@
 <?php
-require_once $_SERVER['DOCUMENT_ROOT']."/config/config.php";
+require_once "../config/connection.php";
 include('user.php');
  
 if($_SERVER["REQUEST_METHOD"] == "POST"){
-    $email_input = mysqli_escape_string($conn, $_POST['email']);
-    $username_input = mysqli_escape_string($conn, $_POST['username']);
-    $password_input = mysqli_escape_string($conn, $_POST['password']);
-    $confirm_password_input = mysqli_escape_string($conn, $_POST['confirm_password']);
-    $user = new User($email_input, $username_input, $password_input, $confirm_password_input);
-    $dataArray = $user->getData($conn);
-    $errorArray = $user->getError();
-    $email = $dataArray['email'];
-    $username = $dataArray['username'];
-    $password = $dataArray['password'];
-    if (count($errorArray)>0){
-    }
-    else{
-        $query = "INSERT INTO user (email, username, password) VALUES('$email', '$username', '$password')";
-        mysqli_query($conn, $query);
-        mysqli_close($conn);
+    $email_input = $conn->real_escape_string($_POST['email']);
+    $username_input = $conn->real_escape_string($_POST['username']);
+    $password_input = $conn->real_escape_string($_POST['password']);;
+    $confirm_password_input = $conn->real_escape_string($_POST['confirm_password']);
+    $user = new User($conn);
+    $code = $user->registration($email_input, $username_input, $password_input, $confirm_password_input);
+    if ($code==0){
         header("location: login.php");
+    }
+    elseif ($code==1){
+        $errorArray = $user->getError();
     }
 }
 ?>
@@ -33,16 +27,13 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 </head>
 <body>
     <div style='text-align:center;' class="container">
-		<header><p>Sign Up</p></header>
+		<header><p><b>Sign Up</b></p></header>
         <p>All Field Required For Registration</p>
 		<p id='error-array'>
             <?php
                 if (isset($errorArray)){     
                     if (count($errorArray)>0){
                         echo '<p>'.'Please correct the error below'.'</p>';
-                        foreach ($errorArray as $error){
-                            echo '<li>'.$error.'</li>';
-                        }
                     }
                 }
             ?>
@@ -54,11 +45,25 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             <div>
                 <input type="text" name="email" value="" placeholder='abc@domain.com'>
             </div>
+            <div style="color:red;">
+                <?php
+                if (isset($errorArray['email_error'])){
+                    echo $errorArray['email_error'];
+                }
+                ?>
+            </div>
             <div>
                 <label>Username</label>
             </div>
             <div>
                 <input type="text" name="username" value="" placeholder='5 or more characters'>
+            </div>
+            <div style="color:red;">
+                <?php
+                if (isset($errorArray['username_error'])){
+                    echo $errorArray['username_error'];
+                }
+                ?>
             </div>
             <div>
                 <label>Password</label>
@@ -66,17 +71,31 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             <div>
                 <input type="password" name="password" value="" placeholder='12 or more characters'>
             </div>
+            <div style="color:red;">
+                <?php
+                if (isset($errorArray['password1_error'])){
+                    echo $errorArray['password1_error'];
+                }
+                ?>
+            </div>
             <div>
                 <label>Confirm Password</label>
             </div>
             <div>
                 <input type="password" name="confirm_password" value="" placeholder='must be same as password'>
             </div>
+            <div style="color:red;">
+                <?php
+                if (isset($errorArray['password2_error'])){
+                    echo $errorArray['password2_error'];
+                }
+                ?>
+            </div>
             <div>
                 <input type="submit" class="button" value="Submit">
                 <input type="reset" class="button" value="Reset">
             </div>
-            <p>Already have an account? <a href="login.php">Login here</a>.</p>
+            <p>Already have an account? <a href="login.php/">Login here</a>.</p>
         </form>
 		
     </div>   
