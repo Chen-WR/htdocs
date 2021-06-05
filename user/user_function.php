@@ -1,9 +1,11 @@
 <?php
     class UserFunction{
         private $link;
+        private $user_id;
         private $error = array();
 
-        public function __construct($conn){
+        public function __construct($user_id, $conn){
+            $this->user_id = $user_id;
             $this->link = $conn;
         }
 
@@ -66,6 +68,61 @@
             $rows = $result->fetch_all(MYSQLI_ASSOC);
             return $rows;
         
+        }
+        public function getReceivedPM(){
+            // Select all from message, join by user that send the message, and extract all message that receiver id is current user and is unread by status 0, group by conversation id, going from newest to oldest.
+            $unread_query = "SELECT * FROM message INNER JOIN user ON message.sender_id = user.id WHERE receiver_id=? AND receiver_read=0 GROUP BY conversation_id ORDER BY conversation_id DESC";
+            $stmt = $this->link->prepare($unread_query);
+            $stmt->bind_param('i', $this->user_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $rows = $result->fetch_all(MYSQLI_ASSOC);
+            return $rows;
+        }
+        public function getSendPM(){
+            // Select all from message, join by user that send the message, and extract all message that receiver id is current user and is unread by status 0, group by conversation id, going from newest to oldest.
+            $read_query = "SELECT * FROM message INNER JOIN user ON message.receiver_id = user.id WHERE sender_id=? AND sender_read=1 GROUP BY conversation_id ORDER BY conversation_id DESC";
+            $stmt = $this->link->prepare($read_query);
+            $stmt->bind_param('i', $this->user_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $rows = $result->fetch_all(MYSQLI_ASSOC);
+            return $rows;
+        }
+        public function setNewPM($subject, $sender_id, $receiver, $message){
+            //check if any required is missing
+            if (empty(trim($subject))){
+                $this->error['subject_error'] = "Subject Required";
+            }
+            elseif (empty(trim($receiver))){
+                $this->error['receiver_error'] = "Receiver Required";
+            }
+            elseif (empty(trim($message))){
+                $this->error['message_error'] = "Message Required";
+            }
+            else{
+                if (count($this->error)<=0){
+                    //check if receiver exist
+                    $query = "SELECT * FROM user WHERE username=?";
+                    $stmt = $this->link->prepare($query);
+                    $stmt->bind_param('i',$receiver);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $rows = $result->fetch_all(MYSQLI_ASSOC);
+                    if (count($rows)==1){
+                        // if receiver exist
+                        
+                    }
+                    else{
+                        $this->error['receiver_error'] = "Receiver Username Does Not Exist";
+                        return 0;
+                    }
+                }
+                else{
+                    // error, return 0
+                    return 0;
+                }
+            }
         }
         public function getError(){
             return $this->error;
