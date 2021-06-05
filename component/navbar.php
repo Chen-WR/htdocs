@@ -10,7 +10,7 @@
 			<a class="active item" href="home.php">
 				Home
 			</a>
-			<a class="item" href="direct_message.php">
+			<a class="item" href="message.php">
 				Messages
 			</a>
 			<a class="item">
@@ -22,7 +22,7 @@
 			<div class="right menu">
 				<div class="item">
 				<div class="ui icon input">
-					<input type="text" placeholder="Search...">
+					<input type="text" placeholder="Search people you know...">
 					<i class="search link icon"></i>
 				</div>
 				</div>
