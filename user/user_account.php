@@ -1,5 +1,5 @@
 <?php
-class User{
+class UserAccount{
     private $id;
     private $email;
     private $username;
@@ -73,10 +73,10 @@ class User{
         $stmt->bind_param('sss', $email, $username, $password);
         if (count($this->error)<=0){
             $stmt->execute();
-            return 0;
+            return 1;
         }
         else {
-            return 1;
+            return 0;
         }
     }
     protected function login_user_validation($email_or_username){

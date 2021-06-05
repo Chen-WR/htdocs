@@ -1,5 +1,5 @@
 <?php
-	include('header.php');
+	require('../config/post_login.php');
 	if(!isset($_SESSION["profile_pic"]) or $_SESSION["pic"] == NULL){
 		$image = "../image/default_profile_pic.jpg";
 	}
