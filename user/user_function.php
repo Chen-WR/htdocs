@@ -89,7 +89,7 @@
             $rows = $result->fetch_all(MYSQLI_ASSOC);
             return $rows;
         }
-        public function setNewPM($subject, $sender_id, $receiver, $message){
+        public function setNewPM($subject, $receiver, $message){
             //check if any required is missing
             if (empty(trim($subject))){
                 $this->error['subject_error'] = "Subject Required";
