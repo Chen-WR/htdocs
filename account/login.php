@@ -1,10 +1,5 @@
 <?php
     require('../config/pre_login.php');
- 
-    if(isset($_SESSION["login"]) and $_SESSION["login"] === true){
-    header("location: ../component/home.php");
-    exit;
-    }
     
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         $email_or_username_input = mysqli_escape_string($conn, $_POST['email_or_username']);

@@ -119,16 +119,16 @@ class UserAccount{
                     $this->email = $rows[0]['email'];
                     $this->username = $rows[0]['username'];
                     $this->profile_pic = $rows[0]['profile_pic'];
-                    return 0;
+                    return 1;
                 }
                 else{
                     $this->error['login_error'] = "Username/Email or Password Incorrect";
-                    return 1;
+                    return 0;
                 }
             }
             else{
                 $this->error['login_error'] = "Username/Email or Password Incorrect";
-                return 1;
+                return 0;
             }
         }
         else{

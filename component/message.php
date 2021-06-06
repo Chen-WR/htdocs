@@ -34,7 +34,7 @@
                         else{
                             foreach($received_rows as $row){
                                 echo '<tr>';
-                                    echo '<td><a href="readmessage.php?conversation_id='.$row["conversation_id"].'">'.$row["subject"].'</a></td>';
+                                    echo '<td><a href="read_message.php?conversation_id='.$row["conversation_id"].'">'.$row["subject"].'</a></td>';
                                     echo '<td>'.$row['username'].'</td>';
                                     echo '<td>'.$row['timestamp'].'</td>';
                                 echo '</tr>';  

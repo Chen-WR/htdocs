@@ -105,13 +105,33 @@
                     //check if receiver exist
                     $query = "SELECT * FROM user WHERE username=?";
                     $stmt = $this->link->prepare($query);
-                    $stmt->bind_param('i',$receiver);
+                    $stmt->bind_param('s',$receiver);
                     $stmt->execute();
                     $result = $stmt->get_result();
                     $rows = $result->fetch_all(MYSQLI_ASSOC);
                     if (count($rows)==1){
                         // if receiver exist
-                        
+                        if ($rows[0]['id']!=$this->user_id){
+                            $receiver = $rows[0]['id'];
+                            // if receiver is not the user itself
+                            $query = "SELECT * FROM message GROUP BY conversation_id";
+                            $stmt = $this->link->prepare($query);
+                            $stmt->execute();
+                            $result = $stmt->get_result();
+                            $rows = $result->fetch_all(MYSQLI_ASSOC);
+                            $conversat_id = intval(count($rows))+1;
+                            $false = 0;
+                            $true = 1;
+                            $query = "INSERT INTO message (sender_id, receiver_id, conversation_id, subject, message, sender_read, receiver_read) VALUES (?,?,?,?,?,?,?)";
+                            $stmt = $this->link->prepare($query);
+                            $stmt->bind_param('iiissii', $this->user_id, $receiver , $conversat_id, $subject, $message, $true, $false);
+                            $rc = $stmt->execute();
+                            return 1;
+                        }
+                        else{
+                            $this->error['receiver_error'] = "You can't send message to yourself";
+                            return 0;
+                        }
                     }
                     else{
                         $this->error['receiver_error'] = "Receiver Username Does Not Exist";
