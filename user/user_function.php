@@ -69,27 +69,18 @@
             return $rows;
         
         }
-        public function getReceivedPM(){
+        public function getMessage(){
             // Select all from message, join by user that send the message, and extract all message that receiver id is current user and is unread by status 0, group by conversation id, going from newest to oldest.
-            $unread_query = "SELECT * FROM message INNER JOIN user ON message.sender_id = user.id WHERE receiver_id=? AND receiver_read=0 GROUP BY conversation_id ORDER BY conversation_id DESC";
-            $stmt = $this->link->prepare($unread_query);
-            $stmt->bind_param('i', $this->user_id);
+            $query = "SELECT * FROM message INNER JOIN user ON (user.id!=?) AND (user.id = message.sender_id OR user.id = message.receiver_id) WHERE sender_id=? OR receiver_id=? GROUP BY conversation_id ORDER BY conversation_id DESC;
+            ";
+            $stmt = $this->link->prepare($query);
+            $stmt->bind_param('iii', $this->user_id, $this->user_id, $this->user_id);
             $stmt->execute();
             $result = $stmt->get_result();
             $rows = $result->fetch_all(MYSQLI_ASSOC);
             return $rows;
         }
-        public function getSendPM(){
-            // Select all from message, join by user that send the message, and extract all message that receiver id is current user and is unread by status 0, group by conversation id, going from newest to oldest.
-            $read_query = "SELECT * FROM message INNER JOIN user ON message.receiver_id = user.id WHERE sender_id=? AND sender_read=1 GROUP BY conversation_id ORDER BY conversation_id DESC";
-            $stmt = $this->link->prepare($read_query);
-            $stmt->bind_param('i', $this->user_id);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $rows = $result->fetch_all(MYSQLI_ASSOC);
-            return $rows;
-        }
-        public function setNewPM($subject, $receiver, $message){
+        public function newMessage($subject, $receiver, $message){
             //check if any required is missing
             if (empty(trim($subject))){
                 $this->error['subject_error'] = "Subject Required";
@@ -120,12 +111,10 @@
                             $result = $stmt->get_result();
                             $rows = $result->fetch_all(MYSQLI_ASSOC);
                             $conversat_id = intval(count($rows))+1;
-                            $false = 0;
-                            $true = 1;
-                            $query = "INSERT INTO message (sender_id, receiver_id, conversation_id, subject, message, sender_read, receiver_read) VALUES (?,?,?,?,?,?,?)";
+                            $query = "INSERT INTO message (sender_id, receiver_id, conversation_id, subject, message) VALUES (?,?,?,?,?)";
                             $stmt = $this->link->prepare($query);
-                            $stmt->bind_param('iiissii', $this->user_id, $receiver , $conversat_id, $subject, $message, $true, $false);
-                            $rc = $stmt->execute();
+                            $stmt->bind_param('iiiss', $this->user_id, $receiver , $conversat_id, $subject, $message);
+                            $stmt->execute();
                             return 1;
                         }
                         else{
@@ -143,6 +132,36 @@
                     return 0;
                 }
             }
+        }
+        public function readMessage($conversation_id){
+            // check conversation_id in database
+            $query = "SELECT * FROM message WHERE conversation_id=? GROUP BY conversation_id";
+            $stmt = $this->link->prepare($query);
+            $stmt->bind_param('i', $conversation_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $rows = $result->fetch_all(MYSQLI_ASSOC);
+            if ($rows[0]['sender_id']==$this->user_id or $rows[0]['receiver_id']==$this->user_id){
+                if (count($rows)==1){
+                    $query = "SELECT * FROM message INNER JOIN user ON (user.id!=?) AND (user.id = message.sender_id OR user.id = message.receiver_id) WHERE conversation_id=? ORDER BY timestamp Desc";
+                    $stmt = $this->link->prepare($query);
+                    $stmt->bind_param('ii', $this->user_id, $conversation_id);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $rows = $result->fetch_all(MYSQLI_ASSOC);
+                    return $rows;
+                }
+                else{
+                    $this->error['conversation_error'] = 'Conversation Does Not Exist';
+                    return 0;
+                }
+            }
+            else{
+                $this->error['auth_error'] = 'Not able to view other peoples conversation';
+            }
+        }
+        public function replyMessage(){
+            
         }
         public function getError(){
             return $this->error;

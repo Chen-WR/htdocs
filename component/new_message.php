@@ -5,7 +5,7 @@
         $subject_input = $conn->real_escape_string($_POST['subject']);
         $receiver_input = $conn->real_escape_string($_POST['receiver']);
         $message_input = $conn->real_escape_string($_POST['message']);
-        $code = $user->setNewPM($subject_input, $receiver_input, $message_input);
+        $code = $user->newMessage($subject_input, $receiver_input, $message_input);
         $errorArray = $user->getError();
         if ($code == 1){
             echo '<p style="text-align:center; color:red;">'.'Message Sent Successful'.'</p>';
