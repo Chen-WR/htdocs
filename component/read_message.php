@@ -48,7 +48,7 @@
         }
         else{
             foreach($errorArray as $error){
-                echo $error;
+                echo '<p style="text-align:center;">'.$error.'</p>';
             }
         }
     }
@@ -57,7 +57,19 @@
     }
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         if(isset($_GET['conversation_id'])){
-            
-        }
+            $conversation_id = intval($_GET['conversation_id']);
+            $message_input = $conn->real_escape_string($_POST['message']);
+            $code = $user->replyMessage($message_input, $conversation_id);
+            $errorArray = $user->getError();
+            if ($code == 1){
+                echo '<p style="text-align:center; color:red;">'.'Reply Sent Successful'.'</p>';
+                echo '<head><meta http-equiv="refresh" content="1"></head>';
+            }        
+            elseif ($code == 0){
+                foreach($errorArray as $error){
+                    echo '<p style="text-align:center; color:red;">'.$error.'</p>';
+                }
+            }
+        }   
     }
 ?>

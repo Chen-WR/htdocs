@@ -84,12 +84,15 @@
             //check if any required is missing
             if (empty(trim($subject))){
                 $this->error['subject_error'] = "Subject Required";
+                return 0;
             }
             elseif (empty(trim($receiver))){
                 $this->error['receiver_error'] = "Receiver Required";
+                return 0;
             }
             elseif (empty(trim($message))){
                 $this->error['message_error'] = "Message Required";
+                return 0;
             }
             else{
                 if (count($this->error)<=0){
@@ -110,10 +113,10 @@
                             $stmt->execute();
                             $result = $stmt->get_result();
                             $rows = $result->fetch_all(MYSQLI_ASSOC);
-                            $conversat_id = intval(count($rows))+1;
+                            $conversation_id = intval(count($rows))+1;
                             $query = "INSERT INTO message (sender_id, receiver_id, conversation_id, subject, message) VALUES (?,?,?,?,?)";
                             $stmt = $this->link->prepare($query);
-                            $stmt->bind_param('iiiss', $this->user_id, $receiver , $conversat_id, $subject, $message);
+                            $stmt->bind_param('iiiss', $this->user_id, $receiver , $conversation_id, $subject, $message);
                             $stmt->execute();
                             return 1;
                         }
@@ -141,8 +144,8 @@
             $stmt->execute();
             $result = $stmt->get_result();
             $rows = $result->fetch_all(MYSQLI_ASSOC);
-            if ($rows[0]['sender_id']==$this->user_id or $rows[0]['receiver_id']==$this->user_id){
-                if (count($rows)==1){
+            if (count($rows)==1){
+                if ($rows[0]['sender_id']==$this->user_id or $rows[0]['receiver_id']==$this->user_id){
                     $query = "SELECT * FROM message INNER JOIN user ON (user.id!=?) AND (user.id = message.sender_id OR user.id = message.receiver_id) WHERE conversation_id=? ORDER BY timestamp Desc";
                     $stmt = $this->link->prepare($query);
                     $stmt->bind_param('ii', $this->user_id, $conversation_id);
@@ -152,16 +155,58 @@
                     return $rows;
                 }
                 else{
-                    $this->error['conversation_error'] = 'Conversation Does Not Exist';
-                    return 0;
+                    $this->error['auth_error'] = 'Not able to view other peoples conversation';
                 }
             }
             else{
-                $this->error['auth_error'] = 'Not able to view other peoples conversation';
+                $this->error['conversation_error'] = 'Conversation Does Not Exist';
+                return 0;
             }
         }
-        public function replyMessage(){
-            
+        public function replyMessage($message, $conversation_id){
+            if (empty(trim($message))){
+                $this->error['message_error'] = "Message Required";
+                return 0;
+            }
+            elseif (empty($conversation_id)){
+                $this->error['conversation_error'] = "Conversation Does Not Exist";
+                return 0;
+            }
+            else{
+                if (count($this->error)<=0){
+                    //check if receiver exist
+                    $query = "SELECT * FROM message WHERE conversation_id=? GROUP BY conversation_id";
+                    $stmt = $this->link->prepare($query);
+                    $stmt->bind_param('i', $conversation_id);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $rows = $result->fetch_all(MYSQLI_ASSOC);
+                    if (count($rows)==1){
+                        // check whose the receiver
+                        if ($this->user_id == $rows[0]['receiver_id']){
+                            $receiver = $rows[0]['sender_id'];
+                        }
+                        elseif ($this->user_id == $rows[0]['sender_id']){
+                            $receiver = $rows[0]['receiver_id'];
+
+                        }
+                        $subject = $rows[0]['subject'];
+                        $query = "INSERT INTO message (sender_id, receiver_id, conversation_id, subject, message) VALUES (?,?,?,?,?)";
+                        $stmt = $this->link->prepare($query);
+                        $stmt->bind_param('iiiss', $this->user_id, $receiver , $conversation_id, $subject, $message);
+                        $stmt->execute();
+                        return 1;
+                    }
+                    else{
+                        $this->error['reply_error'] = "Reply Error";
+                        return 0;
+                    }
+                }
+                else{
+                    // error, return 0
+                    return 0;
+                }
+            }
         }
         public function getError(){
             return $this->error;
