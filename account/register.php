@@ -5,7 +5,6 @@
         $username_input = $conn->real_escape_string($_POST['username']);
         $password_input = $conn->real_escape_string($_POST['password']);;
         $confirm_password_input = $conn->real_escape_string($_POST['confirm_password']);
-        $user = new UserAccount($conn);
         $code = $user->registration($email_input, $username_input, $password_input, $confirm_password_input);
         if ($code==1){
             header("location: login.php");

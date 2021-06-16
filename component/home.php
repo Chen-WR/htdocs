@@ -1,11 +1,5 @@
 <?php
-	require('../config/post_login.php');
-	if(!isset($_SESSION["profile_pic"]) or $_SESSION["pic"] == NULL){
-		$image = "../image/default_profile_pic.jpg";
-	}
-	else{
-		$image = $_SESSION["profile_pic"];
-	}   
+	require('../config/post_login.php'); 
 ?>
 
 <!DOCTYPE html>
@@ -16,8 +10,17 @@
 	</head>
 	<body style="font: 14px sans-serif; text-align: center;">	
 		<div id="profile_pic">
-			<h1 id="profile_username"><b><?php echo htmlspecialchars($_SESSION["username"]); ?></b></h1>
-			<img id="profile_img "src="<?php echo $image?>" width="200px">
+			<h1><b>
+				<?php
+					if ($user->getFirstname() == null or $user->getLastname() == null){
+						echo $user->getUsername();
+					} 
+					else{
+						echo $user->getFirstname().' '.$user->getLastname();
+					}
+				?>
+			</b></h1>
+			<img id="profile_img "src="<?php echo $user->getProfilepic();?>" width="200px">
 		</div>	 
 		<div class="toggle">
 			<div class="fixer-container">

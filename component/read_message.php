@@ -1,6 +1,5 @@
 <?php
     require('../config/post_login.php');
-    $user = new UserFunction($_SESSION['id'],$conn);
     $conversation_id = $_GET['conversation_id'];
 
 ?>
@@ -42,7 +41,7 @@
                 else{
                     echo '<p>From:'.'Me'.'<br>'.'To:'.$row['username'];
                 }
-                echo '<p>'.$row['message'].'</p>';
+                echo '<p>'.stripslashes($row['message']).'</p>';
                 echo '</div>';
             }
         }

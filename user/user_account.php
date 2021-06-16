@@ -1,15 +1,11 @@
 <?php
 class UserAccount{
-    private $id;
-    private $email;
-    private $username;
-    private $profile_pic;
-    private $link;
+    private $conn;
     private $error = array();
 
     // Constructor have 2 underscore and not 1!!!!!
     public function __construct($conn){
-        $this->link = $conn;
+        $this->conn = $conn;
     }
 
     protected function email_validation($email){
@@ -19,7 +15,7 @@ class UserAccount{
         elseif (!empty(trim($email))){
             $email_param = trim($email);
             $query = "SELECT * from user where email=?";
-            $stmt = $this->link->prepare($query);
+            $stmt = $this->conn->prepare($query);
             $stmt->bind_param('s', $email_param);
             $stmt->execute();
             $result = $stmt->get_result();
@@ -38,7 +34,7 @@ class UserAccount{
         elseif (!empty(trim($username))){
             $username_param = trim($username);
             $query = "SELECT * from user where username=?";
-            $stmt = $this->link->prepare($query);
+            $stmt = $this->conn->prepare($query);
             $stmt->bind_param('s', $username_param);
             $stmt->execute();
             $result = $stmt->get_result();
@@ -69,7 +65,7 @@ class UserAccount{
         $username = $this->username_validation($username_input);
         $password = $this->password_validation($password_input, $confirm_password_input);
         $query = "INSERT INTO user (email, username, password) VALUES (?,?,?)";
-        $stmt = $this->link->prepare($query);
+        $stmt = $this->conn->prepare($query);
         $stmt->bind_param('sss', $email, $username, $password);
         if (count($this->error)<=0){
             $stmt->execute();
@@ -101,12 +97,12 @@ class UserAccount{
         if (count($this->error)<=0){
             if (str_contains($email_or_username_input, '@')){
                 $query = "SELECT * FROM user WHERE email=?";
-                $stmt = $this->link->prepare($query);
+                $stmt = $this->conn->prepare($query);
                 $stmt->bind_param('s', $email_or_username);
             }
             elseif (!str_contains($email_or_username_input, '@')){
                 $query = "SELECT * FROM user WHERE username=?";
-                $stmt = $this->link->prepare($query);
+                $stmt = $this->conn->prepare($query);
                 $stmt->bind_param('s', $email_or_username);
             }
             $stmt->execute();
@@ -115,10 +111,7 @@ class UserAccount{
                 $rows = $result->fetch_all(MYSQLI_ASSOC);
                 $password_check = $rows[0]['password'];
                 if (password_verify($password, $password_check)){
-                    $this->id = $rows[0]['id'];
-                    $this->email = $rows[0]['email'];
-                    $this->username = $rows[0]['username'];
-                    $this->profile_pic = $rows[0]['profile_pic'];
+                    $this->rows = $rows;
                     return 1;
                 }
                 else{
@@ -138,8 +131,8 @@ class UserAccount{
     public function getError(){
         return $this->error;
     }
-    public function getCurrent(){
-        return array('id'=>$this->id, 'email'=>$this->email, 'username'=>$this->username, 'profile_pic'=>$this->profile_pic);
+    public function getRows(){
+        return $this->rows; 
     }
 }
 ?>

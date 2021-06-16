@@ -1,12 +1,10 @@
 <?php
     require('../config/post_login.php');
-    $user = new UserFunction($_SESSION['id'], $conn);
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         if(isset($_POST['video_upload'])){
-            $code = $user->setVideo();
+            $code = $user->setVideo($_FILES['video_file']['name'], $_FILES['video_file']['size'], $_FILES['video_file']['tmp_name']);
             if ($code == 1){
                 echo '<div style="color:red; text-align:center;">'.'Upload Success'.'</div>';
-                echo "<meta http-equiv='refresh' content='3'>";
             }
             elseif ($code == 0){
                 echo '<div style="color:red; text-align:center;">'.'Upload Failed'.'</div>';

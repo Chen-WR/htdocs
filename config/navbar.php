@@ -21,11 +21,14 @@
 			</a>
 			<div class="right menu">
 				<div class="item">
-				<div class="ui icon input">
-					<input type="text" placeholder="Search people you know...">
-					<i class="search link icon"></i>
+					<div class="ui icon input">
+						<input type="text" placeholder="Search people you know...">
+						<i class="search link icon"></i>
+					</div>
 				</div>
-				</div>
+				<a class="ui item" href="../component/user_info_edit.php">
+				Edit Profile
+				</a>
 				<a class="ui item" href="../account/logout.php">
 				Logout
 				</a>

@@ -4,15 +4,22 @@
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         $email_or_username_input = mysqli_escape_string($conn, $_POST['email_or_username']);
         $password_input = mysqli_escape_string($conn, $_POST['password']);
-        $user = new UserAccount($conn);
         $code = $user->login($email_or_username_input, $password_input);
         if ($code==1){
-            $currentUser = $user->getCurrent();
+            $rows = $user->getRows();
             $_SESSION["login"] = true;
-            $_SESSION["id"] = $currentUser['id'];
-            $_SESSION["email"] = $currentUser['email'];
-            $_SESSION["username"] = $currentUser['username'];
-            $_SESSION["profile_pic"] = $currentUser['profile_pic'];
+            $_SESSION['status'] = true;
+            $_SESSION["id"] = $rows[0]['id'];
+            $_SESSION["firstname"] = $rows[0]['firstname'];
+            $_SESSION["lastname"] = $rows[0]['lastname'];
+            $_SESSION["email"] = $rows[0]['email'];
+            $_SESSION["username"] = $rows[0]['username'];
+            if ($rows[0]['profile_pic'] == null){
+                $_SESSION['profile_pic'] = "../image/default_profile_pic.jpg";
+            }
+            elseif ($rows[0]['profile_pic'] != null){
+                $_SESSION["profile_pic"] = $rows[0]['profile_pic'];
+            }
             header("location: ../component/home.php");
         }
         elseif ($code==0){

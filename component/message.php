@@ -1,6 +1,5 @@
 <?php
     require('../config/post_login.php');
-    $user = new UserFunction($_SESSION['id'], $conn);
     $rows = $user->getMessage();
 ?>
 
