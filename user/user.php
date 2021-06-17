@@ -1,4 +1,6 @@
 <?php
+require '../vendor/autoload.php';
+
 class User{
     private $status;
     private $id;
@@ -24,14 +26,19 @@ class User{
     // For videos function/////////////////////////////////////////////////////////////////
     public function setVideo($filename, $filesize, $tempfilename){
         // 1MB = 1048576 Bytes
-        $count = 0;
-        $maxsize = 10485760;
-        $allow_extension = array("mp4","avi","3gp","mov","mpeg");
         if (!file_exists('../video')) {
             mkdir('../video', 0777, true);
         }
+        if (!file_exists('../preview')) {
+            mkdir('../preview', 0777, true);
+        }
+        $count = 0;
+        $maxsize = 10485760;
+        $allow_extension = array("mp4","avi","3gp","mov","mpeg");
         $filedir = "../video/";
+        $previewdir = "../preview/";
         $file = $filedir.$filename;
+        $preview = $previewdir.pathinfo($filename, PATHINFO_FILENAME).'.png';
         while (true){
             if (file_exists($file)){
                 $file = $filedir.$count.$filename;
@@ -41,17 +48,29 @@ class User{
                 break;
             }
         }
-        $filetype = strtolower(pathinfo($file,PATHINFO_EXTENSION));
-        if (in_array($filetype,$allow_extension)){
+        while (true){
+            if (file_exists($preview)){
+                $preview = $previewdir.$count.pathinfo($filname, PATHINFO_FILENAME).'.png';
+                $count++;
+            }
+            else{
+                break;
+            }
+        }
+        if (in_array(strtolower(pathinfo($file,PATHINFO_EXTENSION)),$allow_extension)){
             if ($filesize > $maxsize or $filesize == 0){
                 $this->error['size_error'] = 'File must be less than 10MB';
             }
             else{
                 if(move_uploaded_file($tempfilename ,$file)){
                     if (count($this->error)<=0){
-                        $query = "INSERT INTO video (name, location, user_id) VALUES (?,?,?)";
+                        $ffmpeg = FFMpeg\FFMpeg::create();
+                        $video = $ffmpeg->open($file);
+                        $frame = $video->frame(FFMpeg\Coordinate\TimeCode::fromSeconds(1));
+                        $frame->save($preview);
+                        $query = "INSERT INTO video (video_name, video_preview, video_location, user_id) VALUES (?,?,?,?)";
                         $stmt = $this->conn->prepare($query);
-                        $stmt->bind_param('ssi', $filename, $file, $this->id);
+                        $stmt->bind_param('sssi', $filename, $preview, $file, $this->id);
                         $success = $stmt->execute();
                         if ($success){
                             return 1;
@@ -72,15 +91,24 @@ class User{
         }
     }
     public function getVideo(){
-        $query = "SELECT * FROM video WHERE user_id=? ORDER BY timestamp DESC";
+        $query = "SELECT * FROM video WHERE user_id=? ORDER BY upload_time DESC";
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param('i', $this->id);
         $stmt->execute();
         $result = $stmt->get_result();
         $rows = $result->fetch_all(MYSQLI_ASSOC);
         return $rows;
-    
     }
+    public function watchVideo($video_id){
+        $query = "SELECT * FROM video WHERE video_id=?";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bind_param('i', $video_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $rows = $result->fetch_all(MYSQLI_ASSOC);
+        return $rows[0]['video_location'];
+    }
+
     //End for video function////////////////////////////////////////////////////////////////////////
 
     //Profile pic function start////////////////////////////////////////////////////////////////////
@@ -328,6 +356,10 @@ class User{
         }
     }
     //End of edit user info function/////////////////////////////////////////////////////////////////
+
+    //Start of comment function//////////////////////////////////////////////////////////////////////
+
+    //End of comment function////////////////////////////////////////////////////////////////////////
 
     //Getter for all property//////////////////////////////////////////////////////////////////////
     public function getFirstname(){

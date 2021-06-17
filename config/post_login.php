@@ -1,5 +1,6 @@
 <?php
 	require_once "../config/connection.php";
+	require '../vendor/autoload.php';
 	require('navbar.php');
 	require('../user/user.php');
 	session_start();

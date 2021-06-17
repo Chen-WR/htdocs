@@ -20,8 +20,11 @@
         <div style="text-align:center;">
             <h1>Welcome to <?php echo $_SESSION['username']?>'s Channel</h1>
             <form method="post" action="" enctype='multipart/form-data'>
-                <input type='file' name='video_file'>
-                <input type='submit' value='Upload' name='video_upload'>
+                <div style="width:20%;margin:0 auto;" class="mb-3">
+                    <label for="formFileSm" class="form-label">Upload Video</label>
+                    <input class="form-control form-control-sm" id="formFileSm" type="file" name='video_file'>
+                    <input type='submit' value='Upload' name='video_upload'>
+                </div>
             </form>
             <p id='error-array'>
                 <?php
@@ -40,13 +43,21 @@
             <?php
                 $rows = $user->getVideo();
                 foreach($rows as $row){
-                    echo '<div style="text-align:center;">';
-                    echo 'Title:'.'<p><b><STRONG>'.$row["name"].'</STRONG></b></p>';
-                    echo 'Upload Time: '.$row["timestamp"];
-                    echo '</div>';
-                    echo '<div  style="text-align:center">';
-                    echo '<video src="'.$row["location"].'" controls width="480px" height="360px">';
-                    echo '</div>';
+            ?>
+            <div class="container">
+                <div class="row row-cols-5">
+                    <div class="col">
+                        <div class="card" style="width: 10rem;">
+                            <a href="watch_video.php?video_id=<?php echo $row['video_id']?>"><img src="<?php echo $row['video_preview']?>" class="card-img-top" alt="Test"></a>
+                            <div class="card-body">
+                                <a href="watch_video.php?video_id=<?php echo $row['video_id']?>"><h5 class="card-title"><?php echo pathinfo($row['video_name'], PATHINFO_FILENAME)?></h5></a>
+                                <p class="card-text"><?php echo $row['upload_time']?></p>
+                            </div>
+                        </div>
+                    </div> 
+                </div>
+            </div>
+            <?php
                 }
             ?>
         </div>
