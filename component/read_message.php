@@ -7,7 +7,7 @@
         $rows = $user->readMessage(intval($conversation_id));
         $errorArray = $user->getError();
         if (count($errorArray)<=0){
-            echo '<div style="text-align:center;">';
+            echo '<div style="width:80%;margin:auto;text-align:center;">';
             echo '<h1 style="color:white;">'.$rows[0]['subject'].'</h1>';
             foreach($rows as $row){
                 if ($_SESSION['id'] == $row['receiver_id']){
@@ -16,10 +16,10 @@
                                 <img src='".$row['profile_pic']."' width=50px>"
                                 .$rows[0]['username'].":".
                             "</div>
-                            <div style='font-size:20px;color:white;word-wrap: break-word;border:2px solid;border-radius:8px;width:20%;float:left;background-color:#505050;'>"
-                                .stripslashes($row['message']).
+                            <div style='font-size:20px;border:2px solid;border-radius:8px;width:20%;float:left;background-color:#505050;'>"
+                                ."<span style='color:white;word-wrap:break-word;'>".stripslashes($row['message']).
                                 "<br>"
-                                .$row['timestamp'].
+                                .$row['timestamp']."</span>".
                             "</div>
                         </div>";
                 }
@@ -29,10 +29,10 @@
                                 .$user->getusername().
                                 "<img src='".$user->getProfilepic()."' width=50px>
                             </div>
-                            <div style='font-size:20px;color:white;word-wrap: break-word;border:2px solid;border-radius:8px;width:20%;float:right;background-color:#1a7dee;'>"
-                                .stripslashes($row['message']).
+                            <div style='font-size:20px;border:2px solid;border-radius:8px;width:20%;float:right;background-color:#1a7dee;'>"
+                                ."<span style='color:white;word-wrap:break-word;'>".stripslashes($row['message']).
                                 "<br>"
-                                .$row['timestamp'].
+                                .$row['timestamp']."</span>".
                             "</div>
                         </div>";
                 }
