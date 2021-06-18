@@ -1,28 +1,6 @@
 <?php
     require('../config/post_login.php');
     $conversation_id = $_GET['conversation_id'];
-
-?>
-<!DOCTYPE html>
-    <html>
-        <head>
-            <title>Read and Reply</title>
-        </head>
-        <body>
-            <div style='text-align:center;'>
-                <form action="read_message.php?conversation_id=<?php if(isset($_GET['conversation_id'])){$conversation_id = $_GET['conversation_id'];echo $conversation_id;}?>" method="post">
-                    <div>
-                        <label>Reply</label>
-                    </div>
-                    <div>
-                        <textarea cols="40" rows="5" name="message"></textarea>
-                    </div>
-                    <input type="submit" value="Send">
-                </form>
-            </div>            
-        </body>
-    </html>
-<?php
     // check if coversation_id exist
     if(isset($_GET['conversation_id'])){
         $conversation_id = $_GET['conversation_id'];
@@ -30,19 +8,34 @@
         $errorArray = $user->getError();
         if (count($errorArray)<=0){
             echo '<div style="text-align:center;">';
-            echo '<h1>'.$rows[0]['subject'].'</h1>';
-            echo '</div>';
+            echo '<h1 style="color:white;">'.$rows[0]['subject'].'</h1>';
             foreach($rows as $row){
-                echo '<div style="text-align:center; border:1px solid black; width:200px; margin: 0 auto";>';
-                echo '<p>Time:'.$row['timestamp'].'</p>';
                 if ($_SESSION['id'] == $row['receiver_id']){
-                    echo '<p>From:'.$row['username'].'<br>'.'To:'.'Me';
+                    echo"<div class='container' style='width:90%;margin:auto;overflow:hidden;'>
+                            <div style='font-size:14px;border:1px black solid;float:left;color:#f30f0fd9;'>
+                                <img src='".$row['profile_pic']."' width=50px>"
+                                .$rows[0]['username'].":".
+                            "</div>
+                            <div style='font-size:20px;color:white;word-wrap: break-word;border:2px solid;border-radius:8px;width:20%;float:left;background-color:#505050;'>"
+                                .stripslashes($row['message']).
+                                "<br>"
+                                .$row['timestamp'].
+                            "</div>
+                        </div>";
                 }
-                else{
-                    echo '<p>From:'.'Me'.'<br>'.'To:'.$row['username'];
+                elseif ($_SESSION['id'] == $row['sender_id']){
+                    echo"<div class='container' style='width:90%;margin:auto;overflow:hidden;'>
+                            <div style='font-size:14px;border:1px black solid;float:right; color:#edf012;'>"
+                                .$user->getusername().
+                                "<img src='".$user->getProfilepic()."' width=50px>
+                            </div>
+                            <div style='font-size:20px;color:white;word-wrap: break-word;border:2px solid;border-radius:8px;width:20%;float:right;background-color:#1a7dee;'>"
+                                .stripslashes($row['message']).
+                                "<br>"
+                                .$row['timestamp'].
+                            "</div>
+                        </div>";
                 }
-                echo '<p>'.stripslashes($row['message']).'</p>';
-                echo '</div>';
             }
         }
         else{
@@ -72,3 +65,24 @@
         }   
     }
 ?>
+<!DOCTYPE html>
+    <html>
+        <head>
+            <title>Read and Reply</title>
+        </head>
+        <body style="background-color:black;" onload='window.onload=window.scrollTo(0, document.body.scrollHeight);history.scrollRestoration = "manual"';>
+            <div style='text-align:center;'>
+                <form action="read_message.php?conversation_id=<?php if(isset($_GET['conversation_id'])){$conversation_id = $_GET['conversation_id'];echo $conversation_id;}?>" method="post">
+                    <div>
+                        <label style='color:white;'>Reply</label>
+                    </div>
+                    <div>
+                        <textarea cols="40" rows="1" name="message"></textarea>
+                    </div>
+                    <input type="submit" formaction="message.php" value="Back">
+                    <input type="submit" value="Send">
+                </form>
+            </div>
+        </body>
+    </html>
+

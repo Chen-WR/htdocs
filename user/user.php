@@ -50,44 +50,49 @@ class User{
         }
         while (true){
             if (file_exists($preview)){
-                $preview = $previewdir.$count.pathinfo($filname, PATHINFO_FILENAME).'.png';
+                $preview = $previewdir.$count.pathinfo($filename, PATHINFO_FILENAME).'.png';
                 $count++;
             }
             else{
                 break;
             }
         }
-        if (in_array(strtolower(pathinfo($file,PATHINFO_EXTENSION)),$allow_extension)){
-            if ($filesize > $maxsize or $filesize == 0){
-                $this->error['size_error'] = 'File must be less than 10MB';
-            }
-            else{
-                if(move_uploaded_file($tempfilename ,$file)){
-                    if (count($this->error)<=0){
-                        $ffmpeg = FFMpeg\FFMpeg::create();
-                        $video = $ffmpeg->open($file);
-                        $frame = $video->frame(FFMpeg\Coordinate\TimeCode::fromSeconds(1));
-                        $frame->save($preview);
-                        $query = "INSERT INTO video (video_name, video_preview, video_location, user_id) VALUES (?,?,?,?)";
-                        $stmt = $this->conn->prepare($query);
-                        $stmt->bind_param('sssi', $filename, $preview, $file, $this->id);
-                        $success = $stmt->execute();
-                        if ($success){
-                            return 1;
+        if ($filesize != 0){
+            if (in_array(strtolower(pathinfo($file,PATHINFO_EXTENSION)),$allow_extension)){
+                if ($filesize > $maxsize){
+                    $this->error['size_error'] = 'File must be less than 10MB';
+                }
+                else{
+                    if(move_uploaded_file($tempfilename ,$file)){
+                        if (count($this->error)<=0){
+                            $ffmpeg = FFMpeg\FFMpeg::create();
+                            $video = $ffmpeg->open($file);
+                            $frame = $video->frame(FFMpeg\Coordinate\TimeCode::fromSeconds(1));
+                            $frame->save($preview);
+                            $query = "INSERT INTO video (video_name, video_preview, video_location, user_id) VALUES (?,?,?,?)";
+                            $stmt = $this->conn->prepare($query);
+                            $stmt->bind_param('sssi', $filename, $preview, $file, $this->id);
+                            $success = $stmt->execute();
+                            if ($success){
+                                return 1;
+                            }
+                            else{
+                                $this->error['upload_error'] = 'Upload Failed';
+                                return 0;
+                            }
                         }
                         else{
-                            $this->error['upload_error'] = 'Upload Failed';
                             return 0;
                         }
                     }
-                    else{
-                        return 0;
-                    }
                 }
+            }
+            else{
+                $this->error['extension_error'] = 'Invalid File Extension';
             }
         }
         else{
-            $this->error['extension_error'] = 'Invalid File Extension';
+            $this->error['nofile_error'] = 'Please select a file to upload';
         }
     }
     public function getVideo(){
@@ -141,7 +146,7 @@ class User{
                 else{
                     if(move_uploaded_file($tempfilename ,$file)){
                         if (count($this->error)<=0){
-                            $query = "UPDATE user SET profile_pic=? WHERE id=?";
+                            $query = "UPDATE user SET profile_pic=? WHERE user_id=?";
                             $stmt = $this->conn->prepare($query);
                             $stmt->bind_param('si', $file, $this->id);
                             $success = $stmt->execute();
@@ -170,7 +175,7 @@ class User{
     // For messages function///////////////////////////////////////////////////////////////////////
     public function getMessage(){
         // Select all from message, join by user that send the message, and extract all message that receiver id is current user and is unread by status 0, group by conversation id, going from newest to oldest.
-        $query = "SELECT * FROM message INNER JOIN user ON (user.id!=?) AND (user.id = message.sender_id OR user.id = message.receiver_id) WHERE sender_id=? OR receiver_id=? GROUP BY conversation_id ORDER BY conversation_id DESC;
+        $query = "SELECT * FROM message INNER JOIN user ON (user.user_id!=?) AND (user.user_id = message.sender_id OR user.user_id = message.receiver_id) WHERE sender_id=? OR receiver_id=? GROUP BY conversation_id ORDER BY conversation_id DESC;
         ";
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param('iii', $this->id, $this->id, $this->id);
@@ -204,8 +209,8 @@ class User{
                 $rows = $result->fetch_all(MYSQLI_ASSOC);
                 if (count($rows)==1){
                     // if receiver exist
-                    if ($rows[0]['id']!=$this->id){
-                        $receiver = $rows[0]['id'];
+                    if ($rows[0]['user_id']!=$this->id){
+                        $receiver = $rows[0]['user_id'];
                         // if receiver is not the user itself
                         $query = "SELECT * FROM message GROUP BY conversation_id";
                         $stmt = $this->conn->prepare($query);
@@ -244,7 +249,7 @@ class User{
         $rows = $result->fetch_all(MYSQLI_ASSOC);
         if (count($rows)==1){
             if ($rows[0]['sender_id']==$this->id or $rows[0]['receiver_id']==$this->id){
-                $query = "SELECT * FROM message INNER JOIN user ON (user.id!=?) AND (user.id = message.sender_id OR user.id = message.receiver_id) WHERE conversation_id=? ORDER BY timestamp Desc";
+                $query = "SELECT * FROM message INNER JOIN user ON (user.user_id!=?) AND (user.user_id = message.sender_id OR user.user_id = message.receiver_id) WHERE conversation_id=? ORDER BY timestamp ASC";
                 $stmt = $this->conn->prepare($query);
                 $stmt->bind_param('ii', $this->id, $conversation_id);
                 $stmt->execute();
@@ -336,7 +341,7 @@ class User{
             }
         }
         if (count($this->error) <= 0){
-            $query = "UPDATE user SET firstname=?, lastname=?, email=?, username=? WHERE id=?";
+            $query = "UPDATE user SET firstname=?, lastname=?, email=?, username=? WHERE user_id=?";
             $stmt = $this->conn->prepare($query);
             $stmt->bind_param('ssssi', $firstname, $lastname, $email, $username, $this->id);
             $success = $stmt->execute();

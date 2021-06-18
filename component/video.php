@@ -18,7 +18,7 @@
 <html>
     <body>
         <div style="text-align:center;">
-            <h1>Welcome to <?php echo $_SESSION['username']?>'s Channel</h1>
+            <h1>Welcome to <?php echo $user->getFirstname().' '.$user->getLastname();?> Channel</h1>
             <form method="post" action="" enctype='multipart/form-data'>
                 <div style="width:20%;margin:0 auto;" class="mb-3">
                     <label for="formFileSm" class="form-label">Upload Video</label>
@@ -39,24 +39,20 @@
                 ?>
             </p>
         </div>
-        <div>
+        <div class="row row-cols-1 row-cols-md-6 g-4 ">
             <?php
                 $rows = $user->getVideo();
                 foreach($rows as $row){
             ?>
-            <div class="container">
-                <div class="row row-cols-5">
-                    <div class="col">
-                        <div class="card" style="width: 10rem;">
-                            <a href="watch_video.php?video_id=<?php echo $row['video_id']?>"><img src="<?php echo $row['video_preview']?>" class="card-img-top" alt="Test"></a>
-                            <div class="card-body">
-                                <a href="watch_video.php?video_id=<?php echo $row['video_id']?>"><h5 class="card-title"><?php echo pathinfo($row['video_name'], PATHINFO_FILENAME)?></h5></a>
-                                <p class="card-text"><?php echo $row['upload_time']?></p>
-                            </div>
-                        </div>
-                    </div> 
+            <div class="col">
+                <div class="card" style="width: 10rem;">
+                    <a href="watch_video.php?video_id=<?php echo $row['video_id']?>"><img src="<?php echo $row['video_preview']?>" class="card-img-top" alt="Test"></a>
+                    <div class="card-body">
+                        <a href="watch_video.php?video_id=<?php echo $row['video_id']?>"><h5 class="card-title"><?php echo pathinfo($row['video_name'], PATHINFO_FILENAME)?></h5></a>
+                        <p class="card-text"><?php echo $row['upload_time']?></p>
+                    </div>
                 </div>
-            </div>
+            </div> 
             <?php
                 }
             ?>

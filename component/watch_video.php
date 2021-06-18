@@ -7,7 +7,7 @@
 ?>
 <!DOCTYPE html>
     <body>
-        <video width="320" height="240" controls>
-        <source src="<?php echo $src?>">
+        <video width="320" height="240" controls autoplay>
+            <source src="<?php echo $src?>">
     </body>
 </html>

@@ -9,7 +9,7 @@
             $rows = $user->getRows();
             $_SESSION["login"] = true;
             $_SESSION['status'] = true;
-            $_SESSION["id"] = $rows[0]['id'];
+            $_SESSION["id"] = $rows[0]['user_id'];
             $_SESSION["firstname"] = $rows[0]['firstname'];
             $_SESSION["lastname"] = $rows[0]['lastname'];
             $_SESSION["email"] = $rows[0]['email'];
