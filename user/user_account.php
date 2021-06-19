@@ -61,12 +61,13 @@ class UserAccount{
         }
     }
     public function registration($email_input, $username_input, $password_input, $confirm_password_input){
+        $profile_pic = "../image/default_profile_pic.jpg";
         $email = $this->email_validation($email_input);
         $username = $this->username_validation($username_input);
         $password = $this->password_validation($password_input, $confirm_password_input);
-        $query = "INSERT INTO user (email, username, password) VALUES (?,?,?)";
+        $query = "INSERT INTO user (email, username, password, profile_pic) VALUES (?,?,?,?)";
         $stmt = $this->conn->prepare($query);
-        $stmt->bind_param('sss', $email, $username, $password);
+        $stmt->bind_param('ssss', $email, $username, $password, $profile_pic);
         if (count($this->error)<=0){
             $stmt->execute();
             return 1;

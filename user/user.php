@@ -175,10 +175,9 @@ class User{
     // For messages function///////////////////////////////////////////////////////////////////////
     public function getMessage(){
         // Select all from message, join by user that send the message, and extract all message that receiver id is current user and is unread by status 0, group by conversation id, going from newest to oldest.
-        $query = "SELECT * FROM message INNER JOIN user ON (user.user_id!=?) AND (user.user_id = message.sender_id OR user.user_id = message.receiver_id) WHERE sender_id=? OR receiver_id=? GROUP BY conversation_id ORDER BY conversation_id DESC;
-        ";
+        $query = "SELECT conversation.conversation_id,conversation.subject,user.username,user.profile_pic FROM conversation RIGHT JOIN message ON (message.conversation_id=conversation.conversation_id) RIGHT JOIN user ON ((message.sender_id!=? AND message.sender_id=user.user_id) OR (message.receiver_id!=? AND message.receiver_id=user.user_id)) WHERE (message.sender_id=? OR message.receiver_id=?) GROUP BY conversation.conversation_id ORDER BY message.timestamp DESC;";
         $stmt = $this->conn->prepare($query);
-        $stmt->bind_param('iii', $this->id, $this->id, $this->id);
+        $stmt->bind_param('iiii', $this->id, $this->id, $this->id,$this->id);
         $stmt->execute();
         $result = $stmt->get_result();
         $rows = $result->fetch_all(MYSQLI_ASSOC);
@@ -207,20 +206,19 @@ class User{
                 $stmt->execute();
                 $result = $stmt->get_result();
                 $rows = $result->fetch_all(MYSQLI_ASSOC);
-                if (count($rows)==1){
+                if (count($rows)>=1){
                     // if receiver exist
-                    if ($rows[0]['user_id']!=$this->id){
-                        $receiver = $rows[0]['user_id'];
+                    if ($receiver!=$this->username){
+                        $receiver_id = $rows[0]['user_id'];
                         // if receiver is not the user itself
-                        $query = "SELECT * FROM message GROUP BY conversation_id";
+                        $query = "INSERT INTO conversation (subject) VALUES (?)";
                         $stmt = $this->conn->prepare($query);
+                        $stmt->bind_param('s',$subject);
                         $stmt->execute();
-                        $result = $stmt->get_result();
-                        $rows = $result->fetch_all(MYSQLI_ASSOC);
-                        $conversation_id = intval(count($rows))+1;
-                        $query = "INSERT INTO message (sender_id, receiver_id, conversation_id, subject, message) VALUES (?,?,?,?,?)";
+                        $conversation_id = $this->conn->insert_id;
+                        $query = "INSERT INTO message (message, sender_id, receiver_id, conversation_id) VALUES (?,?,?,?)";
                         $stmt = $this->conn->prepare($query);
-                        $stmt->bind_param('iiiss', $this->id, $receiver , $conversation_id, $subject, $message);
+                        $stmt->bind_param('siii', $message, $this->id, $receiver_id , $conversation_id);
                         $stmt->execute();
                         return 1;
                     }
@@ -241,7 +239,7 @@ class User{
     }
     public function readMessage($conversation_id){
         // check conversation_id in database
-        $query = "SELECT * FROM message WHERE conversation_id=? GROUP BY conversation_id";
+        $query = "SELECT message.conversation_id,message.sender_id,message.receiver_id FROM message WHERE message.conversation_id=? GROUP BY message.conversation_id";
         $stmt = $this->conn->prepare($query);
         $stmt->bind_param('i', $conversation_id);
         $stmt->execute();
@@ -249,9 +247,9 @@ class User{
         $rows = $result->fetch_all(MYSQLI_ASSOC);
         if (count($rows)==1){
             if ($rows[0]['sender_id']==$this->id or $rows[0]['receiver_id']==$this->id){
-                $query = "SELECT * FROM message INNER JOIN user ON (user.user_id!=?) AND (user.user_id = message.sender_id OR user.user_id = message.receiver_id) WHERE conversation_id=? ORDER BY timestamp ASC";
+                $query = "SELECT message.message,message.timestamp,message.sender_id,message.receiver_id,user.username,user.profile_pic FROM message RIGHT JOIN user ON ((message.sender_id!=? AND message.sender_id=user.user_id) OR (message.receiver_id!=? AND message.receiver_id=user.user_id)) WHERE message.conversation_id=? ORDER BY message.timestamp ASC;";
                 $stmt = $this->conn->prepare($query);
-                $stmt->bind_param('ii', $this->id, $conversation_id);
+                $stmt->bind_param('iii', $this->id, $this->id, $conversation_id);
                 $stmt->execute();
                 $result = $stmt->get_result();
                 $rows = $result->fetch_all(MYSQLI_ASSOC);
@@ -278,7 +276,7 @@ class User{
         else{
             if (count($this->error)<=0){
                 //check if receiver exist
-                $query = "SELECT * FROM message WHERE conversation_id=? GROUP BY conversation_id";
+                $query = "SELECT message.conversation_id,message.sender_id,message.receiver_id FROM message WHERE message.conversation_id=? GROUP BY message.conversation_id";
                 $stmt = $this->conn->prepare($query);
                 $stmt->bind_param('i', $conversation_id);
                 $stmt->execute();
@@ -293,10 +291,9 @@ class User{
                         $receiver = $rows[0]['receiver_id'];
 
                     }
-                    $subject = $rows[0]['subject'];
-                    $query = "INSERT INTO message (sender_id, receiver_id, conversation_id, subject, message) VALUES (?,?,?,?,?)";
+                    $query = "INSERT INTO message (message, sender_id, receiver_id, conversation_id) VALUES (?,?,?,?)";
                     $stmt = $this->conn->prepare($query);
-                    $stmt->bind_param('iiiss', $this->id, $receiver , $conversation_id, $subject, $message);
+                    $stmt->bind_param('siis', $message, $this->id, $receiver , $conversation_id);
                     $stmt->execute();
                     return 1;
                 }
@@ -367,6 +364,9 @@ class User{
     //End of comment function////////////////////////////////////////////////////////////////////////
 
     //Getter for all property//////////////////////////////////////////////////////////////////////
+    public function getId(){
+        return $this->id;
+    }
     public function getFirstname(){
         return $this->firstname;
     }

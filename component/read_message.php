@@ -1,36 +1,34 @@
 <?php
     require('../config/post_login.php');
-    $conversation_id = $_GET['conversation_id'];
     // check if coversation_id exist
-    if(isset($_GET['conversation_id'])){
+    if(isset($_GET['conversation_id']) and isset($_GET['subject'])){
         $conversation_id = $_GET['conversation_id'];
+        $subject = $_GET['subject'];
         $rows = $user->readMessage(intval($conversation_id));
         $errorArray = $user->getError();
         if (count($errorArray)<=0){
-            echo '<div style="width:80%;margin:auto;text-align:center;">';
-            echo '<h1 style="color:white;">'.$rows[0]['subject'].'</h1>';
+            echo '<h1 id="read-message-subject">'.$subject.'</h1>';
+            echo '<div id="read-message-container">';
             foreach($rows as $row){
-                if ($_SESSION['id'] == $row['receiver_id']){
-                    echo"<div class='container' style='width:90%;margin:auto;overflow:hidden;'>
-                            <div style='font-size:14px;border:1px black solid;float:left;color:#f30f0fd9;'>
-                                <img src='".$row['profile_pic']."' width=50px>"
-                                .$rows[0]['username'].":".
+                if ($user->getId() == $row['receiver_id']){
+                    echo"<div id='read-message-box'>
+                            <div id='read-message-box-left-user'>
+                                <img src='".$row['profile_pic']."' width=50px>".$rows[0]['username']."->".   
                             "</div>
-                            <div style='font-size:20px;border:2px solid;border-radius:8px;width:20%;float:left;background-color:#505050;'>"
-                                ."<span style='color:white;word-wrap:break-word;'>".stripslashes($row['message']).
+                            <div id='read-message-box-left-message'>"
+                                ."<span id='read-message-span'>".stripslashes($row['message']).
                                 "<br>"
                                 .$row['timestamp']."</span>".
                             "</div>
                         </div>";
                 }
-                elseif ($_SESSION['id'] == $row['sender_id']){
-                    echo"<div class='container' style='width:90%;margin:auto;overflow:hidden;'>
-                            <div style='font-size:14px;border:1px black solid;float:right; color:#edf012;'>"
-                                .$user->getusername().
-                                "<img src='".$user->getProfilepic()."' width=50px>
+                elseif ($user->getId() == $row['sender_id']){
+                    echo"<div id='read-message-box'>
+                            <div id='read-message-box-right-user'><-"
+                                .$user->getusername()."<img src='".$user->getProfilepic()."' width=50px>  
                             </div>
-                            <div style='font-size:20px;border:2px solid;border-radius:8px;width:20%;float:right;background-color:#1a7dee;'>"
-                                ."<span style='color:white;word-wrap:break-word;'>".stripslashes($row['message']).
+                            <div id='read-message-box-right-message'>"
+                                ."<span id='read-message-span'>".stripslashes($row['message']).
                                 "<br>"
                                 .$row['timestamp']."</span>".
                             "</div>
@@ -50,6 +48,7 @@
     if($_SERVER["REQUEST_METHOD"] == "POST"){
         if(isset($_GET['conversation_id'])){
             $conversation_id = intval($_GET['conversation_id']);
+            echo $conversation_id;
             $message_input = $conn->real_escape_string($_POST['message']);
             $code = $user->replyMessage($message_input, $conversation_id);
             $errorArray = $user->getError();
@@ -72,7 +71,7 @@
         </head>
         <body style="background-color:black;" onload='window.onload=window.scrollTo(0, document.body.scrollHeight);history.scrollRestoration = "manual"';>
             <div style='text-align:center;'>
-                <form action="read_message.php?conversation_id=<?php if(isset($_GET['conversation_id'])){$conversation_id = $_GET['conversation_id'];echo $conversation_id;}?>" method="post">
+                <form action="read_message.php?conversation_id=<?php if(isset($_GET['conversation_id'])){$conversation_id = $_GET['conversation_id'];echo $conversation_id;}?>&subject=<?php if(isset($_GET['subject'])){$subject = $_GET['subject'];echo $subject;}?>" method="post">
                     <div>
                         <label style='color:white;'>Reply</label>
                     </div>
