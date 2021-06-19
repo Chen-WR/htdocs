@@ -1,6 +1,6 @@
 <?php
 	require('../config/post_login.php');
-	$rows = $user-getComment(); 
+	// $rows = $user-getComment(); 
 ?>
 
 <!DOCTYPE html>

@@ -175,9 +175,9 @@ class User{
     // For messages function///////////////////////////////////////////////////////////////////////
     public function getMessage(){
         // Select all from message, join by user that send the message, and extract all message that receiver id is current user and is unread by status 0, group by conversation id, going from newest to oldest.
-        $query = "SELECT conversation.conversation_id,conversation.subject,user.username,user.profile_pic FROM conversation RIGHT JOIN message ON (message.conversation_id=conversation.conversation_id) RIGHT JOIN user ON ((message.sender_id!=? AND message.sender_id=user.user_id) OR (message.receiver_id!=? AND message.receiver_id=user.user_id)) WHERE (message.sender_id=? OR message.receiver_id=?) GROUP BY conversation.conversation_id ORDER BY message.timestamp DESC;";
+        $query = "SELECT conversation.conversation_id, conversation.subject,message.message,message.timestamp,user.username,user.profile_pic FROM message RIGHT JOIN conversation ON (message.conversation_id=conversation.conversation_id AND message.timestamp=(SELECT message.timestamp FROM message WHERE message.conversation_id=conversation.conversation_id ORDER BY message.timestamp DESC LIMIT 1)) INNER JOIN user ON ((message.sender_id!=? AND message.sender_id=user.user_id) OR (message.receiver_id!=? AND message.receiver_id=user.user_id)) ORDER BY message.timestamp DESC";
         $stmt = $this->conn->prepare($query);
-        $stmt->bind_param('iiii', $this->id, $this->id, $this->id,$this->id);
+        $stmt->bind_param('ii', $this->id, $this->id);
         $stmt->execute();
         $result = $stmt->get_result();
         $rows = $result->fetch_all(MYSQLI_ASSOC);

@@ -7,7 +7,7 @@
         <head>
             <title>Messages</title>
         </head>
-        <body id='message-body'>
+        <body class='message-body'>
             <a id='new-message-btn' href='new_message.php'>New Message</a>
             <?php
                 echo '<h3 style="text-align:center;">'.'Messages'.'('.intval(count($rows)).')'.'</h3>';
@@ -15,20 +15,24 @@
                         echo '<p style="text-align:center;">'.'No Conversation'.'</p>';
                     }
                     else{
-                        echo "<div id='message-container'>";
+                        echo "<div class='message-container'>";
                         foreach($rows as $row){
-                            echo"<a id='message-box-link'  href='read_message.php?conversation_id=".$row['conversation_id']."&subject=".$row['subject']."'>
-                                    <div id='message-box'>
-                                        <div id='message-box-pic'>
-                                            <img src='".$row['profile_pic']."' width='40px'>
+                            echo"<a class='message-box-link-box'  href='read_message.php?conversation_id=".$row['conversation_id']."&subject=".$row['subject']."'>
+                                        <div class='message-box-pic'>
+                                            <img src='".$row['profile_pic']."' width='60px'>
                                         </div>
-                                        <div id='message-box-username'>
+                                        <div class='message-box-username'>
                                             ".$row['username']."
                                         </div>
-                                        <div id='message-box-subject'>
+                                        <div class='message-box-timestamp'>
+                                            ".date('m-d-y',strtotime($row['timestamp']))."
+                                        </div>
+                                        <div class='message-box-subject'>
                                             ".$row['subject']."
                                         </div>
-                                    </div>
+                                        <div class='message-box-latest-message'>
+                                            ".substr($row['message'],0,15)."....
+                                        </div>   
                                 </a>";
                         } 
                         echo "</div>";

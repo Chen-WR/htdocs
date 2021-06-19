@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.0
+-- version 5.1.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 07, 2021 at 08:30 PM
+-- Generation Time: Jun 19, 2021 at 09:33 PM
 -- Server version: 10.4.19-MariaDB
--- PHP Version: 8.0.6
+-- PHP Version: 8.0.7
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -24,14 +24,23 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `friend`
+-- Table structure for table `conversation`
 --
 
-CREATE TABLE `friend` (
-  `id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `friend_id` int(11) NOT NULL
+CREATE TABLE `conversation` (
+  `conversation_id` int(11) NOT NULL,
+  `subject` varchar(255) NOT NULL,
+  `last_active` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `conversation`
+--
+
+INSERT INTO `conversation` (`conversation_id`, `subject`, `last_active`) VALUES
+(5, 'subject1', NULL),
+(6, 'subject2', NULL),
+(7, 'subject3 ', NULL);
 
 -- --------------------------------------------------------
 
@@ -40,29 +49,30 @@ CREATE TABLE `friend` (
 --
 
 CREATE TABLE `message` (
-  `id` int(11) NOT NULL,
+  `message_id` int(11) NOT NULL,
+  `message` varchar(255) NOT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
   `sender_id` int(11) NOT NULL,
   `receiver_id` int(11) NOT NULL,
-  `conversation_id` int(11) NOT NULL,
-  `subject` varchar(255) NOT NULL,
-  `message` varchar(255) NOT NULL,
-  `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `conversation_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `message`
 --
 
-INSERT INTO `message` (`id`, `sender_id`, `receiver_id`, `conversation_id`, `subject`, `message`, `timestamp`) VALUES
-(30, 10, 8, 1, 'hello', 'hello', '2021-06-07 15:51:21'),
-(31, 10, 11, 2, 'hello1', 'hello1', '2021-06-07 16:00:57'),
-(32, 10, 8, 1, 'hello', 'hello again', '2021-06-07 17:04:23'),
-(33, 10, 8, 1, 'hello', 'hello again again', '2021-06-07 17:05:50'),
-(34, 10, 8, 1, 'hello', 'hello again again again', '2021-06-07 17:06:06'),
-(35, 10, 11, 2, 'hello1', 'whats up', '2021-06-07 17:06:17'),
-(36, 10, 11, 2, 'hello1', 'what\\\'s up', '2021-06-07 17:06:23'),
-(37, 10, 11, 2, 'hello1', 'hello bruh', '2021-06-07 17:08:00'),
-(38, 11, 10, 2, 'hello1', 'finally hello bakc', '2021-06-07 18:24:19');
+INSERT INTO `message` (`message_id`, `message`, `timestamp`, `sender_id`, `receiver_id`, `conversation_id`) VALUES
+(6, 'this is test one', '2021-06-19 00:13:12', 10, 11, 5),
+(7, 'this is test two', '2021-06-19 00:13:45', 10, 12, 6),
+(8, 'this is test 3', '2021-06-19 00:13:54', 10, 11, 7),
+(9, 'this is test 3', '2021-06-19 00:39:35', 10, 11, 7),
+(10, 'this is test again', '2021-06-19 00:39:52', 10, 11, 7),
+(11, 'test', '2021-06-19 00:42:40', 10, 11, 7),
+(12, 'hello', '2021-06-19 00:43:16', 10, 11, 7),
+(13, 'ssss', '2021-06-19 00:43:38', 10, 11, 7),
+(14, 'finally', '2021-06-19 00:45:10', 10, 11, 7),
+(15, 'hello', '2021-06-19 00:45:33', 11, 10, 7),
+(16, 'laaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', '2021-06-19 17:28:39', 10, 11, 7);
 
 -- --------------------------------------------------------
 
@@ -71,10 +81,12 @@ INSERT INTO `message` (`id`, `sender_id`, `receiver_id`, `conversation_id`, `sub
 --
 
 CREATE TABLE `user` (
-  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
   `email` varchar(255) NOT NULL,
   `username` varchar(255) NOT NULL,
   `password` varchar(255) NOT NULL,
+  `firstname` varchar(255) NOT NULL,
+  `lastname` varchar(255) NOT NULL,
   `profile_pic` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -82,10 +94,10 @@ CREATE TABLE `user` (
 -- Dumping data for table `user`
 --
 
-INSERT INTO `user` (`id`, `email`, `username`, `password`, `profile_pic`) VALUES
-(8, 'test@gmail.com', 'test', '$2y$10$iSqgxa77v4dFDd7pihNAp.ioOK.qtfv/.2aUgeyTBzhaQGTwo4fBK', NULL),
-(10, 'test@aol.com', 'test12345', '$2y$10$gH8VzncNr3cGXOWr.o5VgOuuR38Dpn0sFxUGlZ6X.fjVIRvwGTZBq', NULL),
-(11, 'test@hotmail.com', 'test123', '$2y$10$Cdb46EroiISbVWmnK.AlBOiLvTklO7wX5BlJogvUiCbrGbT/VHt62', NULL);
+INSERT INTO `user` (`user_id`, `email`, `username`, `password`, `firstname`, `lastname`, `profile_pic`) VALUES
+(10, 'test@aol.com', 'test12345', '$2y$10$gH8VzncNr3cGXOWr.o5VgOuuR38Dpn0sFxUGlZ6X.fjVIRvwGTZBq', 'kevin', 'king', '../picture/apple.jpg'),
+(11, 'test@hotmail.com', 'test123', '$2y$10$Cdb46EroiISbVWmnK.AlBOiLvTklO7wX5BlJogvUiCbrGbT/VHt62', 'sam', 'madison', '../picture/orange.jpg'),
+(12, 'test@mail.com', 'test0201', '$2y$10$1nNmQj/arXj7T.2pCY/CTuMiplDnad71w9Md56ah./9PcI.7F8CDa', '', '', '../image/default_profile_pic.jpg');
 
 -- --------------------------------------------------------
 
@@ -94,10 +106,11 @@ INSERT INTO `user` (`id`, `email`, `username`, `password`, `profile_pic`) VALUES
 --
 
 CREATE TABLE `video` (
-  `id` int(11) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `location` varchar(255) NOT NULL,
-  `timestamp` timestamp NOT NULL DEFAULT current_timestamp(),
+  `video_id` int(11) NOT NULL,
+  `video_name` varchar(255) NOT NULL,
+  `video_preview` varchar(255) NOT NULL,
+  `video_location` varchar(255) NOT NULL,
+  `upload_time` timestamp NOT NULL DEFAULT current_timestamp(),
   `user_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -106,18 +119,17 @@ CREATE TABLE `video` (
 --
 
 --
--- Indexes for table `friend`
+-- Indexes for table `conversation`
 --
-ALTER TABLE `friend`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`),
-  ADD KEY `friend_id` (`friend_id`);
+ALTER TABLE `conversation`
+  ADD PRIMARY KEY (`conversation_id`);
 
 --
 -- Indexes for table `message`
 --
 ALTER TABLE `message`
-  ADD PRIMARY KEY (`id`),
+  ADD PRIMARY KEY (`message_id`),
+  ADD KEY `conversation_id` (`conversation_id`),
   ADD KEY `sender_id` (`sender_id`),
   ADD KEY `receiver_id` (`receiver_id`);
 
@@ -125,7 +137,7 @@ ALTER TABLE `message`
 -- Indexes for table `user`
 --
 ALTER TABLE `user`
-  ADD PRIMARY KEY (`id`),
+  ADD PRIMARY KEY (`user_id`),
   ADD UNIQUE KEY `email` (`email`),
   ADD UNIQUE KEY `username` (`username`);
 
@@ -133,7 +145,7 @@ ALTER TABLE `user`
 -- Indexes for table `video`
 --
 ALTER TABLE `video`
-  ADD PRIMARY KEY (`id`),
+  ADD PRIMARY KEY (`video_id`),
   ADD KEY `user_id` (`user_id`);
 
 --
@@ -141,52 +153,46 @@ ALTER TABLE `video`
 --
 
 --
--- AUTO_INCREMENT for table `friend`
+-- AUTO_INCREMENT for table `conversation`
 --
-ALTER TABLE `friend`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `conversation`
+  MODIFY `conversation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `message`
 --
 ALTER TABLE `message`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+  MODIFY `message_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `video`
 --
 ALTER TABLE `video`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `video_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- Constraints for dumped tables
 --
 
 --
--- Constraints for table `friend`
---
-ALTER TABLE `friend`
-  ADD CONSTRAINT `friend_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `friend_ibfk_2` FOREIGN KEY (`friend_id`) REFERENCES `user` (`id`) ON DELETE CASCADE;
-
---
 -- Constraints for table `message`
 --
 ALTER TABLE `message`
-  ADD CONSTRAINT `message_ibfk_1` FOREIGN KEY (`sender_id`) REFERENCES `user` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `message_ibfk_2` FOREIGN KEY (`receiver_id`) REFERENCES `user` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `message_ibfk_1` FOREIGN KEY (`conversation_id`) REFERENCES `conversation` (`conversation_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `message_ibfk_2` FOREIGN KEY (`sender_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `message_ibfk_3` FOREIGN KEY (`receiver_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `video`
 --
 ALTER TABLE `video`
-  ADD CONSTRAINT `video_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `video_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`user_id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -20,7 +20,7 @@
     <head>
         <title>New Message</title>
     </head>
-    <body>
+    <body class='message-body'>
         <div style='text-align:center;'>
             <h1>New Message</h1>
             <form action="new_message.php" method="post">

@@ -7,28 +7,28 @@
         $rows = $user->readMessage(intval($conversation_id));
         $errorArray = $user->getError();
         if (count($errorArray)<=0){
-            echo '<h1 id="read-message-subject">'.$subject.'</h1>';
-            echo '<div id="read-message-container">';
+            echo '<h1 class="read-message-subject">'.$subject.'</h1>';
+            echo '<div class="read-message-container">';
             foreach($rows as $row){
                 if ($user->getId() == $row['receiver_id']){
-                    echo"<div id='read-message-box'>
-                            <div id='read-message-box-left-user'>
+                    echo"<div class='read-message-box'>
+                            <div class='read-message-box-left-user'>
                                 <img src='".$row['profile_pic']."' width=50px>".$rows[0]['username']."->".   
                             "</div>
-                            <div id='read-message-box-left-message'>"
-                                ."<span id='read-message-span'>".stripslashes($row['message']).
+                            <div class='read-message-box-left-message'>"
+                                ."<span class='read-message-span'>".stripslashes($row['message']).
                                 "<br>"
                                 .$row['timestamp']."</span>".
                             "</div>
                         </div>";
                 }
                 elseif ($user->getId() == $row['sender_id']){
-                    echo"<div id='read-message-box'>
-                            <div id='read-message-box-right-user'><-"
+                    echo"<div class='read-message-box'>
+                            <div class='read-message-box-right-user'><-"
                                 .$user->getusername()."<img src='".$user->getProfilepic()."' width=50px>  
                             </div>
-                            <div id='read-message-box-right-message'>"
-                                ."<span id='read-message-span'>".stripslashes($row['message']).
+                            <div class='read-message-box-right-message'>"
+                                ."<span class='read-message-span'>".stripslashes($row['message']).
                                 "<br>"
                                 .$row['timestamp']."</span>".
                             "</div>
@@ -69,7 +69,7 @@
         <head>
             <title>Read and Reply</title>
         </head>
-        <body style="background-color:black;" onload='window.onload=window.scrollTo(0, document.body.scrollHeight);history.scrollRestoration = "manual"';>
+        <body class='message-body' onload='window.onload=window.scrollTo(0, document.body.scrollHeight);history.scrollRestoration = "manual"';>
             <div style='text-align:center;'>
                 <form action="read_message.php?conversation_id=<?php if(isset($_GET['conversation_id'])){$conversation_id = $_GET['conversation_id'];echo $conversation_id;}?>&subject=<?php if(isset($_GET['subject'])){$subject = $_GET['subject'];echo $subject;}?>" method="post">
                     <div>
