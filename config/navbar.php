@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
+		<script src="../js/main.js"></script>
 		<link rel="stylesheet" href="../css/stylesheet.css">
 		<link href="https://vjs.zencdn.net/7.11.4/video-js.css" rel="stylesheet" />
 		<script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>

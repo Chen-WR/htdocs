@@ -1,3 +1,35 @@
+/* Home Page */
+.home-user-container{
+    background-color:black;
+    text-align:center;
+    height:250px;
+}
+.home-user-username{
+    font-size:2vw;
+    color:white;
+}
+.home-new-post-button-container{
+    height:100px;
+    background-color:black;
+    text-align:center;
+}
+.home-new-post-container{
+    height:150px;
+    width:100%;
+    background-color:black;
+}
+.home-new-post-input-box{
+    height:100%;
+    margin:auto;
+    width:60%;
+    text-align:center;
+    background-color:#444040;
+}
+.home-list-post{
+    background-color:black;;
+    height:100%;
+}
+
 /* Message List */
 .message-body{
     background-color:#626161f2;
@@ -24,7 +56,6 @@ a#new-message-btn{
     margin-top:10px;
     border:solid white 1px;
     text-decoration: none;
-
 }
 .message-box-pic{
     position: absolute;
@@ -50,7 +81,7 @@ a#new-message-btn{
     position: absolute;
     top:20%;
     left:46%;
-    color:black;
+    color:#99d9ff;
 }
 .message-box-latest-message{
     position: absolute;
